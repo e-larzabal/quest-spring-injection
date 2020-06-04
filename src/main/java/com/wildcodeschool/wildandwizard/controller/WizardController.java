@@ -1,34 +1,36 @@
 package com.wildcodeschool.wildandwizard.controller;
 
 import com.wildcodeschool.wildandwizard.entity.Wizard;
+import com.wildcodeschool.wildandwizard.repository.WizardDao;
 import com.wildcodeschool.wildandwizard.repository.WizardRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class WizardController {
 
-    private WizardRepository repository = new WizardRepository();
+    @Autowired
+    @Qualifier("wizardRepository")
+    private WizardDao wizardRepo;
 
+    //@ResponseBody
     @GetMapping("/wizards")
     public String getAll(Model model) {
 
-        model.addAttribute("wizards", repository.findAll());
+        model.addAttribute("wizards", wizardRepo.findAll());
 
         return "wizards";
     }
 
     @GetMapping("/wizard")
-    public String getWizard(Model model,
-                            @RequestParam(required = false) Long id) {
+    public String getWizard(Model model, @RequestParam(required = false) Long id) {
 
         Wizard wizard = new Wizard();
         if (id != null) {
-            wizard = repository.findById(id);
+            wizard = wizardRepo.findById(id);
         }
         model.addAttribute("wizard", wizard);
 
@@ -39,9 +41,9 @@ public class WizardController {
     public String postWizard(@ModelAttribute Wizard wizard) {
 
         if (wizard.getId() != null) {
-            repository.update(wizard);
+            wizardRepo.update(wizard);
         } else {
-            repository.save(wizard);
+            wizardRepo.save(wizard);
         }
         return "redirect:/wizards";
     }
@@ -49,7 +51,7 @@ public class WizardController {
     @GetMapping("/wizard/delete")
     public String deleteWizard(@RequestParam Long id) {
 
-        repository.deleteById(id);
+        wizardRepo.deleteById(id);
 
         return "redirect:/wizards";
     }
